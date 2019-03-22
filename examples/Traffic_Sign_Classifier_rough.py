@@ -27,6 +27,13 @@
 
 # Load pickled data
 import pickle
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import pandas as pd
+import cv2
+from sklearn.utils import shuffle
 
 # TODO: Fill this in based on where you saved the training and testing data
 
@@ -63,29 +70,29 @@ X_test, y_test = test['features'], test['labels']
 
 # In[17]:
 
+if False:
+    ### Replace each question mark with the appropriate value. 
+    ### Use python, pandas or numpy methods rather than hard coding the results
 
-### Replace each question mark with the appropriate value. 
-### Use python, pandas or numpy methods rather than hard coding the results
+    # TODO: Number of training examples
+    n_train = X_train.shape[0]
 
-# TODO: Number of training examples
-n_train = X_train.shape[0]
+    # TODO: Number of validation examples
+    n_validation = X_valid.shape[0]
 
-# TODO: Number of validation examples
-n_validation = X_valid.shape[0]
+    # TODO: Number of testing examples.
+    n_test = X_test.shape[0]
 
-# TODO: Number of testing examples.
-n_test = X_test.shape[0]
+    # TODO: What's the shape of an traffic sign image?
+    image_shape = X_train.shape[1], X_train.shape[2], X_train.shape[3]
 
-# TODO: What's the shape of an traffic sign image?
-image_shape = X_train.shape[1], X_train.shape[2], X_train.shape[3]
+    # TODO: How many unique classes/labels there are in the dataset.
+    n_classes = len(list(set(y_train)))
 
-# TODO: How many unique classes/labels there are in the dataset.
-n_classes = len(list(set(y_train)))
-
-print("Number of training examples =", n_train)
-print("Number of testing examples =", n_test)
-print("Image data shape =", image_shape)
-print("Number of classes =", n_classes)
+    print("Number of training examples =", n_train)
+    print("Number of testing examples =", n_test)
+    print("Image data shape =", image_shape)
+    print("Number of classes =", n_classes)
 
 
 # ### Include an exploratory visualization of the dataset
@@ -98,23 +105,49 @@ print("Number of classes =", n_classes)
 
 # In[ ]:
 
+if False:
+    ### Data exploration visualization code goes here.
+    ### Feel free to use as many code cells as needed.
+    # Visualizations will be shown in the notebook.
+    # get_ipython().run_line_magic('matplotlib', 'inline')
 
-### Data exploration visualization code goes here.
-### Feel free to use as many code cells as needed.
-import random
-import numpy as np
-import matplotlib.pyplot as plt
-# Visualizations will be shown in the notebook.
-# get_ipython().run_line_magic('matplotlib', 'inline')
+    index = random.randint(0, len(X_train))
+    image = X_train[index].squeeze()
 
-index = random.randint(0, len(X_train))
-image = X_train[index].squeeze()
+    plt.figure(figsize=(1,1))
+    plt.imshow(image, cmap="gray")
+    plt.show()
+    print(y_train[index])
 
-plt.figure(figsize=(1,1))
-plt.imshow(image, cmap="gray")
-#plt.show()
-print(y_train[index])
+if False:
+    data = pd.read_csv('../signnames.csv')
+      
+    num_of_samples=[]
 
+    cols = 5
+    num_classes = 43
+
+    fig, axs = plt.subplots(nrows=num_classes, ncols=cols, figsize=(5,50))
+    fig.tight_layout()
+
+    for i in range(cols):
+        for j, row in data.iterrows():
+          x_selected = X_train[y_train == j]
+          axs[j][i].imshow(x_selected[random.randint(0,(len(x_selected) - 1)), :, :], cmap=plt.get_cmap('gray'))
+          axs[j][i].axis("off")
+          if i == 2:
+            axs[j][i].set_title(str(j) + " - " + row["SignName"])
+            num_of_samples.append(len(x_selected))
+    plt.show()
+
+if False:
+    plt.figure(figsize=(12, 4))
+    plt.bar(range(0, num_classes), num_of_samples)
+    plt.title("Distribution of the train dataset")
+    plt.xlabel("Class number")
+    plt.ylabel("Number of images")
+    plt.show()
+    assert(X_train.shape[0] == np.sum(num_of_samples)), "The total number of training images is not equal to the sum total of number of training images for each of the labels."
 
 # ----
 # 
@@ -149,9 +182,53 @@ print(y_train[index])
 ### Preprocess the data here. It is required to normalize the data. Other preprocessing steps could include 
 ### converting to grayscale, etc.
 ### Feel free to use as many code cells as needed.
-from sklearn.utils import shuffle
 
-X_train, y_train = shuffle(X_train, y_train)
+# convert image into grayscale
+def grayscale(img):
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    return img
+
+# convert the RGB image to YUV format
+def rgb_to_yuv(img):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
+    return img
+
+# histogram equalization to improve contrast of image
+def equalize(img):
+    # equalize the histogram of the Y channel
+#    img[:,:,0] = cv2.equalizeHist(img[:,:,0])
+    img = cv2.equalizeHist(img)
+    return img
+
+# convert the YUV image back to RGB format
+def yuv_to_rgb(img):
+    img = cv2.cvtColor(img, cv2.COLOR_YUV2BGR)
+    return img
+
+# normalize data
+def normalize(img):
+#    img = (img - 128)/ 128
+    img = img/255
+    return img
+
+def preprocess(img):
+    img = grayscale(img)
+#    img = rgb_to_yuv(img)
+    img = equalize(img)
+#    img = yuv_to_rgb(img)
+    img = normalize(img)
+    return img
+
+# preprocess training, testing and validation data
+X_train = np.array(list(map(preprocess, X_train)))
+X_test = np.array(list(map(preprocess, X_test)))
+X_valid = np.array(list(map(preprocess, X_valid)))
+
+
+# reshape data
+X_train = X_train.reshape(X_train.shape[0], 32, 32, 1)
+X_test = X_test.reshape(X_test.shape[0], 32, 32, 1)
+X_valid = X_valid.reshape(X_valid.shape[0], 32, 32, 1)
 
 # ### Model Architecture
 
@@ -162,73 +239,138 @@ X_train, y_train = shuffle(X_train, y_train)
 ### Feel free to use as many code cells as needed.
 import tensorflow as tf
 
-EPOCHS = 10
-BATCH_SIZE = 128
+EPOCHS = 10          # 10
+BATCH_SIZE = 50
+DROPOUT = 0.50      # 0.75
 
 from tensorflow.contrib.layers import flatten
 
-def LeNet(x):    
+#def modified_model(x):    
+#    # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
+#    mu = 0
+#    sigma = 0.1
+#    
+#    # SOLUTION: Layer 1: Convolutional. Input = 32x32x3. Output = 28x28x6.
+#    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 6), mean = mu, stddev = sigma))
+#    conv1_b = tf.Variable(tf.zeros(6))
+#    conv1   = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
+
+#    # SOLUTION: Activation.
+#    conv1 = tf.nn.relu(conv1)
+
+#    # SOLUTION: Pooling. Input = 28x28x6. Output = 14x14x6.
+#    conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+
+#    # SOLUTION: Layer 2: Convolutional. Output = 10x10x16.
+#    conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = mu, stddev = sigma))
+#    conv2_b = tf.Variable(tf.zeros(16))
+#    conv2   = tf.nn.conv2d(conv1, conv2_W, strides=[1, 1, 1, 1], padding='VALID') + conv2_b
+#    
+#    # SOLUTION: Activation.
+#    conv2 = tf.nn.relu(conv2)
+
+#    # SOLUTION: Pooling. Input = 10x10x16. Output = 5x5x16.
+#    conv2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+
+#    # SOLUTION: Flatten. Input = 5x5x16. Output = 400.
+#    fc0   = flatten(conv2)
+#    
+#    # SOLUTION: Layer 3: Fully Connected. Input = 400. Output = 120.
+#    fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma))
+#    fc1_b = tf.Variable(tf.zeros(120))
+#    fc1   = tf.matmul(fc0, fc1_W) + fc1_b
+#    
+#    # SOLUTION: Activation.
+#    fc1    = tf.nn.relu(fc1)
+
+#    # SOLUTION: Layer 4: Fully Connected. Input = 120. Output = 84.
+#    fc2_W  = tf.Variable(tf.truncated_normal(shape=(120, 84), mean = mu, stddev = sigma))
+#    fc2_b  = tf.Variable(tf.zeros(84))
+#    fc2    = tf.matmul(fc1, fc2_W) + fc2_b
+#    
+#    # SOLUTION: Activation.
+#    fc2    = tf.nn.relu(fc2)
+
+#    # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 43.
+#    fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, 43), mean = mu, stddev = sigma))
+#    fc3_b  = tf.Variable(tf.zeros(43))
+#    logits = tf.matmul(fc2, fc3_W) + fc3_b
+#    
+#    return logits
+
+def modified_model(x):    
     # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
     mu = 0
     sigma = 0.1
     
-    # SOLUTION: Layer 1: Convolutional. Input = 32x32x3. Output = 28x28x6.
-    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 6), mean = mu, stddev = sigma))
-    conv1_b = tf.Variable(tf.zeros(6))
+    # SOLUTION: Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x60.
+    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 60), mean = mu, stddev = sigma))
+    conv1_b = tf.Variable(tf.zeros(60))
     conv1   = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
 
     # SOLUTION: Activation.
     conv1 = tf.nn.relu(conv1)
 
-    # SOLUTION: Pooling. Input = 28x28x6. Output = 14x14x6.
+    # SOLUTION: Layer 1: Convolutional. Input = 28x28x1. Output = 24x24x60.
+    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 60, 60), mean = mu, stddev = sigma))
+    conv1_b = tf.Variable(tf.zeros(60))
+    conv1   = tf.nn.conv2d(conv1, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
+
+    # SOLUTION: Activation.
+    conv1 = tf.nn.relu(conv1)
+
+    # SOLUTION: Pooling. Input = 24x24x60. Output = 12x12x60.
     conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
 
-    # SOLUTION: Layer 2: Convolutional. Output = 10x10x16.
-    conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = mu, stddev = sigma))
-    conv2_b = tf.Variable(tf.zeros(16))
+    # SOLUTION: Layer 2: Convolutional. Input = 12x12x60. Output = 10x10x30.
+    conv2_W = tf.Variable(tf.truncated_normal(shape=(3, 3, 60, 30), mean = mu, stddev = sigma))
+    conv2_b = tf.Variable(tf.zeros(30))
     conv2   = tf.nn.conv2d(conv1, conv2_W, strides=[1, 1, 1, 1], padding='VALID') + conv2_b
     
     # SOLUTION: Activation.
     conv2 = tf.nn.relu(conv2)
 
-    # SOLUTION: Pooling. Input = 10x10x16. Output = 5x5x16.
+    # SOLUTION: Layer 2: Convolutional. Input = 10x10x30. Output = 8x8x30.
+    conv2_W = tf.Variable(tf.truncated_normal(shape=(3, 3, 30, 30), mean = mu, stddev = sigma))
+    conv2_b = tf.Variable(tf.zeros(30))
+    conv2   = tf.nn.conv2d(conv2, conv2_W, strides=[1, 1, 1, 1], padding='VALID') + conv2_b
+    
+    # SOLUTION: Activation.
+    conv2 = tf.nn.relu(conv2)
+
+    # SOLUTION: Pooling. Input = 8x8x30. Output = 4x4x30.
     conv2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
 
-    # SOLUTION: Flatten. Input = 5x5x16. Output = 400.
+    # SOLUTION: Flatten. Input = 4x4x30. Output = 480.
     fc0   = flatten(conv2)
     
-    # SOLUTION: Layer 3: Fully Connected. Input = 400. Output = 120.
-    fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma))
-    fc1_b = tf.Variable(tf.zeros(120))
+    # SOLUTION: Layer 3: Fully Connected. Input = 480. Output = 500.
+    fc1_W = tf.Variable(tf.truncated_normal(shape=(480, 500), mean = mu, stddev = sigma))
+    fc1_b = tf.Variable(tf.zeros(500))
     fc1   = tf.matmul(fc0, fc1_W) + fc1_b
     
     # SOLUTION: Activation.
     fc1    = tf.nn.relu(fc1)
 
-    # SOLUTION: Layer 4: Fully Connected. Input = 120. Output = 84.
-    fc2_W  = tf.Variable(tf.truncated_normal(shape=(120, 84), mean = mu, stddev = sigma))
-    fc2_b  = tf.Variable(tf.zeros(84))
-    fc2    = tf.matmul(fc1, fc2_W) + fc2_b
-    
-    # SOLUTION: Activation.
-    fc2    = tf.nn.relu(fc2)
+    # add dropout
+    fc1 = tf.nn.dropout(fc1, DROPOUT)
 
-    # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 43.
-    fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, 43), mean = mu, stddev = sigma))
-    fc3_b  = tf.Variable(tf.zeros(43))
-    logits = tf.matmul(fc2, fc3_W) + fc3_b
+    # SOLUTION: Layer 4: Fully Connected. Input = 500. Output = 43.
+    fc2_W  = tf.Variable(tf.truncated_normal(shape=(500, 43), mean = mu, stddev = sigma))
+    fc2_b  = tf.Variable(tf.zeros(43))
+    logits = tf.matmul(fc1, fc2_W) + fc2_b
     
     return logits
 
 ## Features and Labels
-x = tf.placeholder(tf.float32, (None, 32, 32, 3))
+x = tf.placeholder(tf.float32, (None, 32, 32, 1))
 y = tf.placeholder(tf.int32, (None))
 one_hot_y = tf.one_hot(y, 43)
 
 ## Training Pipeline
 rate = 0.001
 
-logits = LeNet(x)
+logits = modified_model(x)
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=one_hot_y, logits=logits)
 loss_operation = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate = rate)
@@ -256,38 +398,38 @@ def evaluate(X_data, y_data):
 
 # In[ ]:
 
-
-### Train your model here.
-### Calculate and report the accuracy on the training and validation set.
-### Once a final model architecture is selected, 
-### the accuracy on the test set should be calculated and reported as well.
-### Feel free to use as many code cells as needed.
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-    num_examples = len(X_train)
-    
-    print("Training...")
-    print()
-    for i in range(EPOCHS):
-        X_train, y_train = shuffle(X_train, y_train)
-        for offset in range(0, num_examples, BATCH_SIZE):
-            end = offset + BATCH_SIZE
-            batch_x, batch_y = X_train[offset:end], y_train[offset:end]
-            sess.run(training_operation, feed_dict={x: batch_x, y: batch_y})
-            
-        validation_accuracy = evaluate(X_valid, y_valid)
-        print("EPOCH {} ...".format(i+1))
-        print("Validation Accuracy = {:.3f}".format(validation_accuracy))
-        print()
+if False:
+    ### Train your model here.
+    ### Calculate and report the accuracy on the training and validation set.
+    ### Once a final model architecture is selected, 
+    ### the accuracy on the test set should be calculated and reported as well.
+    ### Feel free to use as many code cells as needed.
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        num_examples = len(X_train)
         
-    saver.save(sess, './lenet')
-    print("Model saved")
+        print("Training...")
+        print()
+        for i in range(EPOCHS):
+            X_train, y_train = shuffle(X_train, y_train)
+            for offset in range(0, num_examples, BATCH_SIZE):
+                end = offset + BATCH_SIZE
+                batch_x, batch_y = X_train[offset:end], y_train[offset:end]
+                sess.run(training_operation, feed_dict={x: batch_x, y: batch_y})
+                
+            validation_accuracy = evaluate(X_valid, y_valid)
+            print("EPOCH {} ...".format(i+1))
+            print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+            print()
+            
+        saver.save(sess, './lenet')
+        print("Model saved")
 
-with tf.Session() as sess:
-    saver.restore(sess, tf.train.latest_checkpoint('.'))
+    with tf.Session() as sess:
+        saver.restore(sess, tf.train.latest_checkpoint('.'))
 
-    test_accuracy = evaluate(X_test, y_test)
-    print("Test Accuracy = {:.3f}".format(test_accuracy))
+        test_accuracy = evaluate(X_test, y_test)
+        print("Test Accuracy = {:.3f}".format(test_accuracy))
 
 # ---
 # 
@@ -304,7 +446,102 @@ with tf.Session() as sess:
 
 ### Load the images and plot them here.
 ### Feel free to use as many code cells as needed.
+#predict internet number
+#import requests
+#from PIL import Image
+#url = 'https://c8.alamy.com/comp/A0RX23/cars-and-automobiles-must-turn-left-ahead-sign-A0RX23.jpg'
+#r = requests.get(url, stream=True)
+#img = Image.open(r.raw)
 
+#img = cv2.imread('../test_images/GK10NJ.jpg') 
+#cv2.imshow('test image', img)
+#cv2.waitKey(0)
+
+# Make a list of test images and save the results
+
+def evaluate_image_top_index(img):
+
+    img = np.asarray(img)
+    img = cv2.resize(img, (32, 32))
+    img = preprocess(img)
+    #plt.imshow(img, cmap = plt.get_cmap('gray'))
+    #plt.show()
+    #print(img.shape)
+    img = img.reshape(1, 32, 32, 1)
+
+    with tf.Session() as sess:
+        saver.restore(sess, tf.train.latest_checkpoint('.'))
+
+        # top argmax index
+        prediction_max = sess.run(tf.argmax(tf.nn.softmax(logits), axis=1), feed_dict={x: img})
+        print("\nbest predicted sign index: "+ str(prediction_max))
+        print("\n")
+    return prediction_max
+
+def evaluate_image_top_k_index(img):
+
+    img = np.asarray(img)
+    img = cv2.resize(img, (32, 32))
+    img = preprocess(img)
+    #plt.imshow(img, cmap = plt.get_cmap('gray'))
+    #plt.show()
+    #print(img.shape)
+    img = img.reshape(1, 32, 32, 1)
+
+    with tf.Session() as sess:
+        saver.restore(sess, tf.train.latest_checkpoint('.'))
+
+        # top k argmax indices
+        k = 5                               # required count of top results  
+        prediction_max_k = sess.run(tf.nn.top_k(tf.nn.softmax(logits), k = 5), feed_dict={x: img})
+        print("\ntop {} predicted sign indices : ".format(k)+ str(prediction_max_k.indices))
+        print("\ntop {} predicted sign probabilities : ".format(k)+ str(prediction_max_k.values))
+        print("\n")
+
+import glob
+images = sorted(glob.glob('../test_images/test*.jpg'))
+images_actual_id =  np.array([[14, 34, 0, 0, 27]])     # dummy id for now to debug
+images_predicted_id = []
+
+for idx, img in enumerate(images):
+
+    print(img)
+    print("\n")
+
+    # Read in image
+    img = cv2.imread(img)
+
+    # Convert BGR to RGB
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+#    plt.imshow(img)
+#    plt.show()
+
+    # best predicted sign index
+    prediction_max = evaluate_image_top_index(img)
+
+    # check accuracy
+    images_predicted_id.append(prediction_max)
+
+    # best predicted sign index
+    evaluate_image_top_k_index(img)
+
+    #img = mpimg.imread('../test_images/STOP_sign.jpg')
+    #plt.imshow(img)
+    #plt.show()
+
+# check accuracy
+images_predicted_id = np.transpose(np.array(images_predicted_id))
+
+print(images_predicted_id)
+print(images_actual_id)
+
+assert(images_predicted_id.shape == images_actual_id.shape), "The total count of test images evaluated is not equal to the total count of test images assumed to have provided as input."
+
+correct_prediction_count = np.sum(images_predicted_id == images_actual_id)
+accuracy_percentage = (correct_prediction_count / images_actual_id.shape[1]) * 100
+
+print("accuracy percentage {:.2f}".format(accuracy_percentage))
 
 # ### Predict the Sign Type for Each Image
 
@@ -315,6 +552,22 @@ with tf.Session() as sess:
 ### Make sure to pre-process the images with the same pre-processing pipeline used earlier.
 ### Feel free to use as many code cells as needed.
 
+#def evaluate_image_top_index(img):
+#    img = np.asarray(img)
+#    img = cv2.resize(img, (32, 32))
+#    img = preprocess(img)
+#    #plt.imshow(img, cmap = plt.get_cmap('gray'))
+#    #plt.show()
+#    #print(img.shape)
+#    img = img.reshape(1, 32, 32, 1)
+
+#    with tf.Session() as sess:
+#        saver.restore(sess, tf.train.latest_checkpoint('.'))
+
+#        # top argmax index
+#        prediction_max = sess.run(tf.argmax(tf.nn.softmax(logits), axis=1), feed_dict={x: img})
+#        print("\nbest predicted sign index: "+ str(prediction_max))
+#        print("\n")
 
 # ### Analyze Performance
 
@@ -324,6 +577,9 @@ with tf.Session() as sess:
 ### Calculate the accuracy for these 5 new images. 
 ### For example, if the model predicted 1 out of 5 signs correctly, it's 20% accurate on these new images.
 
+
+#correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
+#accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 # ### Output Top 5 Softmax Probabilities For Each Image Found on the Web
 
@@ -365,12 +621,23 @@ with tf.Session() as sess:
 # 
 # Looking just at the first row we get `[ 0.34763842,  0.24879643,  0.12789202]`, you can confirm these are the 3 largest probabilities in `a`. You'll also notice `[3, 0, 5]` are the corresponding indices.
 
+
 # In[ ]:
 
 
 ### Print out the top five softmax probabilities for the predictions on the German traffic sign images found on the web. 
 ### Feel free to use as many code cells as needed.
 
+#def evaluate_image_top_k_index(img):
+#    with tf.Session() as sess:
+#        saver.restore(sess, tf.train.latest_checkpoint('.'))
+
+#        # top k argmax indices
+#        k = 5                               # required count of top results  
+#        prediction_max_k = sess.run(tf.nn.top_k(tf.nn.softmax(logits), k = 5), feed_dict={x: img})
+#        print("\ntop {} predicted sign indices : ".format(k)+ str(prediction_max_k.indices))
+#        print("\ntop {} predicted sign probabilities : ".format(k)+ str(prediction_max_k.values))
+#        print("\n")
 
 # ### Project Writeup
 # 
