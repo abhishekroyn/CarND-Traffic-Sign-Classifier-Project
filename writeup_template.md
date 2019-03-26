@@ -138,8 +138,8 @@ To train the model, I,
 #### 4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
 My final model results were:
-* training set accuracy of 99.4%
-* validation set accuracy of 96.7%
+* training set accuracy of 99.3%
+* validation set accuracy of 96.5%
 * test set accuracy of 94.3%
 
 If an iterative approach was chosen:
@@ -193,10 +193,10 @@ Here are the results of the prediction:
 | Image			        |     Prediction	        					| 
 |:---------------------:|:---------------------------------------------:| 
 | Stop      		    | Stop 									        | 
-| Turn left ahead       | Speed limit (80km/h)							|
-| Keep right		    | Yield											|
-| No passing	      	| Roundabout mandatory					 	    |
-| Pedestrians			| Priority road      							|
+| Turn left ahead       | Speed limit (50km/h)							|
+| Keep right		    | Roundabout mandatory							|
+| No passing	      	| Wild animals crossing					 	    |
+| Pedestrians			| Speed limit (60km/h) 							|
 
 The model was able to correctly guess 1 of the 5 traffic signs, which gives an accuracy of 20%. This compares unfavorably to the accuracy on the test set of ..... Several factors might have led to this vast difference between test output results. Images from the web also seems to have varying noise and orientation for which the model might not have been trained enough due to lack of augmented training dataset. Also, based on distribution of training dataset displayed in bar-graph few of the classes have very few training datasets while others have relatively higher. Thus, the classes with less number of training data may have been trained poorly thus, precion and recall values are expected to be unsatisfactory, which also leads to difficulty in testing unseen traffic sign images from the web.
 
@@ -204,55 +204,55 @@ The model was able to correctly guess 1 of the 5 traffic signs, which gives an a
 
 The code for making predictions on my final model is located in the 18th code-cell of the Ipython notebook.
 
-For the first image, the model is relatively sure that this is a stop sign (probability of 0.6), and the image does contain a stop sign. The top five soft max probabilities were
+For the first image, the model is relatively sure that this is a stop sign (probability of 0.99), and the image does contain a stop sign. The top five soft max probabilities were
 
 | Probability         	|     Prediction	        					| 
 |:---------------------:|:---------------------------------------------:| 
-| .60         			| Stop sign   									| 
-| .20     				| U-turn 										|
-| .05					| Yield											|
-| .04	      			| Bumpy Road					 				|
-| .01				    | Slippery Road      							|
+| .99         			| Stop sign   									| 
+| .00     				| No vehicle									|
+| .00					| Yield											|
+| .00	      			| Turn left ahead				 				|
+| .00				    | Speed limit (70km/h) 							|
 
-For the second image, the model is relatively sure that this is a stop sign (probability of 0.6), and the image does contain a stop sign. The top five soft max probabilities were
-
-| Probability         	|     Prediction	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| .60         			| Stop sign   									| 
-| .20     				| U-turn 										|
-| .05					| Yield											|
-| .04	      			| Bumpy Road					 				|
-| .01				    | Slippery Road      							|
-
-For the third image, the model is relatively sure that this is a stop sign (probability of 0.6), and the image does contain a stop sign. The top five soft max probabilities were
+For the second image, the model is relatively sure that this is a Right-of-way at the next intersection sign(probability of 0.99), but the image contains a Turn left ahead sign, which appears to second on the list but with very low probability. The top five soft max probabilities were
 
 | Probability         	|     Prediction	        					| 
 |:---------------------:|:---------------------------------------------:| 
-| .60         			| Stop sign   									| 
-| .20     				| U-turn 										|
-| .05					| Yield											|
-| .04	      			| Bumpy Road					 				|
-| .01				    | Slippery Road      							|
+| .99         			| Right-of-way at the next intersection			| 
+| .00     				| Turn left ahead								|
+| .00					| Speed limit (80km/h)							|
+| .00	      			| Beware of ice/snow			 				|
+| .00				    | Speed limit (50km/h) 							|
 
-For the fourth image, the model is relatively sure that this is a stop sign (probability of 0.6), and the image does contain a stop sign. The top five soft max probabilities were
-
-| Probability         	|     Prediction	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| .60         			| Stop sign   									| 
-| .20     				| U-turn 										|
-| .05					| Yield											|
-| .04	      			| Bumpy Road					 				|
-| .01				    | Slippery Road      							|
-
-For the fifth image, the model is relatively sure that this is a stop sign (probability of 0.6), and the image does contain a stop sign. The top five soft max probabilities were
+For the third image, the model is relatively sure that this is a Double curv sign (probability of 0.73), but the image contains a Keep right sign, which does not appear in the below top five list. The top five soft max probabilities were
 
 | Probability         	|     Prediction	        					| 
 |:---------------------:|:---------------------------------------------:| 
-| .60         			| Stop sign   									| 
-| .20     				| U-turn 										|
-| .05					| Yield											|
-| .04	      			| Bumpy Road					 				|
-| .01				    | Slippery Road      							|
+| .73         			| Double curve   								| 
+| .23     				| Road narrows on the right						|
+| .02					| Right-of-way at the next intersection			|
+| .02	      			| Children crossing				 				|
+| .00				    | Go straight or left  							|
+
+For the fourth image, the model is thinks that this is a Roundabout mandatory sign (probability of 0.45), but the image contains a No passing sign, which does not appear in the below top five list. The top five soft max probabilities were
+
+| Probability         	|     Prediction	        					| 
+|:---------------------:|:---------------------------------------------:| 
+| .45         			| Roundabout mandatory							| 
+| .34     				| Children crossing								|
+| .13					| Speed limit (30km/h)							|
+| .03	      			| Wild animals crossing			 				|
+| .01				    | Dangerous curve to the left					|
+
+For the fifth image, the model is relatively sure that this is a Ahead only sign (probability of 0.90), but the image contains a Pedestrians sign, which does not appear in the below top five list. The top five soft max probabilities were
+
+| Probability         	|     Prediction	        					| 
+|:---------------------:|:---------------------------------------------:| 
+| .90         			| Ahead only  									| 
+| .01     				| Speed limit (60km/h)							|
+| .00					| Speed limit (80km/h)							|
+| .00	      			| Yield     					 				|
+| .00				    | Stop               							|
 
 
 ### Future Work
