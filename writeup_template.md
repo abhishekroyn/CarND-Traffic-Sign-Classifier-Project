@@ -20,18 +20,18 @@ The goals / steps of this project are the following:
 [//]: # (Image References)
 
 [image1]: ./output_images/single_image_sample.jpg "Single image sample.jpg"
-[image2]: ./output_images/multiple_images_sample.jpg.jpg "Multiple images sample.jpg"
-[image3]: ./output_images/train_dataset_distribution.jpg.jpg "Train dataset distribution.jpg"
-[image4]: ./output_images/test_image_preprocessed_1.jpg "Traffic Sign preprocessed 1"
-[image5]: ./output_images/test_image_preprocessed_2.jpg "Traffic Sign preprocessed 2"
-[image6]: ./output_images/test_image_preprocessed_3.jpg "Traffic Sign preprocessed 3"
-[image7]: ./output_images/test_image_preprocessed_4.jpg "Traffic Sign preprocessed 4"
-[image8]: ./output_images/test_image_preprocessed_5.jpg "Traffic Sign preprocessed 5"
+[image2]: ./output_images/multiple_images_sample.jpg "Multiple images sample.jpg"
+[image3]: ./output_images/train_dataset_distribution.jpg "Train dataset distribution.jpg"
+[image4]: ./output_images/test_image_preprocessed_0.jpg "Traffic Sign preprocessed 1"
+[image5]: ./output_images/test_image_preprocessed_1.jpg "Traffic Sign preprocessed 2"
+[image6]: ./output_images/test_image_preprocessed_2.jpg "Traffic Sign preprocessed 3"
+[image7]: ./output_images/test_image_preprocessed_3.jpg "Traffic Sign preprocessed 4"
+[image8]: ./output_images/test_image_preprocessed_4.jpg "Traffic Sign preprocessed 5"
 [image9]: ./test_images/test_1.jpg "Traffic Sign 1"
-[image10]: ./test_images/test_1.jpg "Traffic Sign 2"
-[image11]: ./test_images/test_1.jpg "Traffic Sign 3"
-[image12]: ./test_images/test_1.jpg "Traffic Sign 4"
-[image13]: ./test_images/test_1.jpg "Traffic Sign 5"
+[image10]: ./test_images/test_2.jpg "Traffic Sign 2"
+[image11]: ./test_images/test_3.jpg "Traffic Sign 3"
+[image12]: ./test_images/test_4.jpg "Traffic Sign 4"
+[image13]: ./test_images/test_5.jpg "Traffic Sign 5"
 
 ## Rubric Points
 ### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
