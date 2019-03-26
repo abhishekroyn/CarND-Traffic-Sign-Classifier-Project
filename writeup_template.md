@@ -174,8 +174,15 @@ Dropout ensured partial weights get vanished and thus more of the weights get to
 
 Here are five German traffic signs that I found on the web:
 
-![alt text][image9] ![alt text][image10] ![alt text][image11] 
-![alt text][image12] ![alt text][image13]
+![alt text][image9]
+
+![alt text][image10] 
+
+![alt text][image11] 
+
+![alt text][image12] 
+
+![alt text][image13]
 
 The third image might be difficult to classify because it has extra stripe on sign-stand in the image, which could be confusing to the model as the model may see it as a potetial traffic-sign itself.
 
